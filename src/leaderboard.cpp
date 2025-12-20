@@ -28,18 +28,9 @@ void selectLeaderboardMode(GameState mode) {
     #endif
     std::string scoreFileLocation_S = scoreFileLocation;
     switch (mode) {
-        case PLAY_CLASSIC:
+        case PLAY:
             scoreFileLocation_S += "_classic";
             break;
-        // case PLAY_ARCADE:
-        //     scoreFileLocation_S += "_arcade";
-        //     break;
-        // case PLAY_RHYTHM:
-        //     scoreFileLocation_S += "_rhythm";
-        //     break;
-        // case PLAY_DUELS:
-        //     scoreFileLocation_S += "_duels";
-        //     break;
         default:
             break;
     }
