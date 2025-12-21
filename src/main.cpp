@@ -4,11 +4,6 @@
 #define RAYGUI_IMPLEMENTATION
 #include "../libs/raygui/src/raygui.h"
 
-#include <vector>
-#include <algorithm>
-#include <string>
-#include <iostream>
-#include <cmath>
 #include <filesystem>
 
 #include "main.hpp"
@@ -16,12 +11,16 @@
 #include <raymath.h>
 
 // Window setup
-int screenWidth = 720;
+int screenWidth = 720; // Sprites are 2x scaled, so this will be 360x240
 const int screenHeight = 480;
 bool windowShouldClose = false;
 
 // Loading resources
 std::string assetPathPrefix = "../assets/";
+
+Texture2D fieldTexture;
+
+Model soccerBallModel;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -31,7 +30,7 @@ std::vector<int> leaderboardScores;
 GameState selectedLeaderboardMode;
 int selectedLeaderboardIndex = 0;
 
-// // Global game state setup
+// Global game state setup
 GameSettings gameSettings;
 
 RenderTexture2D mainRenderTexture;
@@ -178,11 +177,12 @@ void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &render
     
     // Draw
     BeginTextureMode(renderTexture);
-        ClearBackground(LIGHTGRAY);
+        ClearBackground(Color{145, 255, 81, 255});
+        DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
         
         // 3D rendering
         BeginMode3D(gameInstance.camera);
-            
+            DrawModelEx(soccerBallModel, {1.0f, 0.0f, 0.0f}, -90.0f, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
         EndMode3D();
         
         // 2D rendering
@@ -194,6 +194,12 @@ void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &render
             default: {break;}
         }
     EndTextureMode();
+}
+
+Texture2D LoadTextureFromImage2x(std::string filename) {
+    Image image = LoadImage((assetPathPrefix + filename).c_str());
+    ImageResizeNN(&image, image.width*2, image.height*2);
+    return LoadTextureFromImage(image);
 }
 
 void init_app() {
@@ -208,10 +214,10 @@ void init_app() {
     
     ResetGame(mainGameInstance);
     mainGameInstance.player = 1;
+
+    fieldTexture = LoadTextureFromImage2x("field_layout.png");
     
-    // classicIcon = LoadImage((assetPathPrefix + "icons/classic.png").c_str());
-    
-    // classicIconTexture = LoadTextureFromImage(classicIcon);
+    soccerBallModel = LoadModel((assetPathPrefix + "soccerBall/soccerBall.obj").c_str());
     
     selectLeaderboardMode(PLAY);
 }
