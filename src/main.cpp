@@ -217,6 +217,9 @@ bool app_loop() {
         ClearBackground(Color{145, 255, 81, 255});
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
         
+        //Player Moving (Walking and Running)
+        player.playerMovement(relDt);
+
         // Only 3D rendered object
         testBall.update(relDt);
         

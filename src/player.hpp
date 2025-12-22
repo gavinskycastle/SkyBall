@@ -16,13 +16,18 @@ enum PLAYER_STATE {
 //Main Class
 class Player {
     public:
-        int x = 10;
-        int y = 10;
-        int length = 8;
-        int width = 8;
-        int moveSpeed = 1;
+        float x = 150.0f;
+        float y = 150.0f;
+        // width = horizontal size, length = vertical size
+        float width = 30.0f;
+        float length = 35.0f;
+        // Movement speed in pixels per second
+        float walkSpeed = 5.0f;
+        float runSpeed = walkSpeed * 2.0f;
         
-        void moveRectangle(float delta);
+        void rectangleIdle(float delta);
+        void rectangleWalk(float delta);
+        void rectangleRun(float delta);
         void playerMovement(float delta);
 };
 
