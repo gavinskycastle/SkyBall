@@ -8,6 +8,7 @@ void Player::rectangleIdle(float delta) {
     // Draw the player rectangle in idle state
     DrawRectangle((int)x, (int)y, (int)width, (int)length, RED);
 }
+
 void Player::rectangleWalk(float delta) {
     float speed = IsKeyDown(KEY_LEFT_SHIFT) ? walkSpeed * 1.5f : walkSpeed;
     

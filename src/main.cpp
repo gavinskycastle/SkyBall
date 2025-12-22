@@ -21,8 +21,8 @@ bool windowShouldClose = false;
 std::string assetPathPrefix = "../assets/";
 
 Texture2D fieldTexture;
-Texture2D goalTexture1;
-Texture2D goalTexture2;
+Texture2D goalTexture;
+Texture2D backgroundTexture;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -93,7 +93,7 @@ void DrawGameOver(GameInstanceState &gameInstance) {
 }
 
 void DrawMainMenu(GameInstanceState &gameInstance) {
-    DrawTextCentered("ScoreJam37", screenWidth/2-35, screenHeight/2-125, 50, BLACK);
+    DrawTextCentered("SkyBall", screenWidth/2-35, screenHeight/2-125, 50, BLACK);
     
     GuiSetStyle(DEFAULT, TEXT_SIZE, 25);
     if (GuiButton(Rectangle {static_cast<float>(screenWidth/2-100), screenHeight/2-50, 200, 50}, "Play") == 1) {
@@ -206,8 +206,8 @@ void init_app() {
     mainGameInstance.player = 1;
 
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
-    goalTexture1 = LoadTextureFromImage2x("goal.png");
-    goalTexture2 = LoadTextureFromImage2x("goal.png");
+    goalTexture = LoadTextureFromImage2x("goal.png");
+    backgroundTexture = LoadTextureFromImage2x("background.png");
     
     selectLeaderboardMode(PLAY);
     
@@ -218,10 +218,10 @@ bool app_loop() {
     float relDt = GetFrameTime() * 60.0f; // Calculate delta time in relation to 60 frames per second
     
     BeginDrawing();
-        ClearBackground(Color{89, 175, 35, 255});
-        DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
-        DrawTexture(goalTexture1, 4, 182, WHITE);
-        DrawTexture(goalTexture2, 772, 182, WHITE);
+        ClearBackground(BLANK);
+        DrawTexture(backgroundTexture, 0, 0, WHITE);
+        DrawRectangle(54, 34, 732, 492, Color{89, 175, 35, 255});
+        DrawTexture(fieldTexture, 0, 0, WHITE);
         
         //Player Moving (Walking and Running)
         player.playerMovement(relDt);
@@ -243,6 +243,9 @@ bool app_loop() {
         if (IsKeyPressed(KEY_RIGHT)) {
             testBall.kick(1.0f, 0.0f);
         }
+        
+        DrawTexture(goalTexture, 4, 182, WHITE);
+        DrawTexture(goalTexture, 772, 182, WHITE);
         
         // Draw UI/holdovers from Cone Stacker
         UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);

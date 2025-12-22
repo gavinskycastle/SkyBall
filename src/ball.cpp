@@ -37,6 +37,37 @@ void Ball::kick(float aFx, float aFy) {
     }
 }
 
+void Ball::bounceBack(float bFx, float bFy) {
+    const float damping = 0.95f; // reduce velocity slightly on bounce
+
+    if (x > (float)GetScreenWidth()) {
+        x = (float)GetScreenWidth();
+        vx = -vx * damping;
+        Fx = -Fx * damping;
+    }
+    if (x < 0.0f) {
+        x = 0.0f;
+        vx = -vx * damping;
+        Fx = -Fx * damping;
+    }
+
+    if (y > (float)GetScreenHeight()) {
+        y = (float)GetScreenHeight();
+        vy = -vy * damping;
+        Fy = -Fy * damping;
+    }
+    if (y < 0.0f) {
+        y = 0.0f;
+        vy = -vy * damping;
+        Fy = -Fy * damping;
+    }
+
+    // Optional: apply any external bounce forces passed in
+    Fx += bFx;
+    Fy += bFy;
+
+}
+
 void Ball::update(float relDt, std::vector<Player>& players) {
     Rectangle ballRect = Rectangle{x-textureSize, y-textureSize, (float)(textureSize * 2), (float)(textureSize * 2)};
     
@@ -66,6 +97,9 @@ void Ball::update(float relDt, std::vector<Player>& players) {
     // Rotation
     xRotation += vx * ((float)textureSize / 180.0f);
     zRotation += vy * ((float)textureSize / 180.0f);
+
+    // Handle wall collisions (invert velocity when hitting edges)
+    bounceBack(0.0f, 0.0f);
     
     // Keep ball within bounds
     if (x > GetScreenWidth()) {
@@ -109,15 +143,8 @@ void Ball::update(float relDt, std::vector<Player>& players) {
     
     DrawTexturePro(renderTexture.texture, Rectangle{0, 0, (float)textureSize, (float)textureSize}, ballRect, Vector2{0, 0}, 0.0f, WHITE);
     
-    // Write x velocity to screen for debugging
-    DrawText(("X Velocity: " + std::to_string(vx)).c_str(), 10, 10, 20, BLACK);
-    
-    // Write y velocity to screen for debugging
-    DrawText(("Y Velocity: " + std::to_string(vy)).c_str(), 10, 30, 20, BLACK);
-    
-    // Write x force to screen for debugging
-    DrawText(("X Force: " + std::to_string(Fx)).c_str(), 10, 50, 20, BLACK);
-    
-    // Write y force to screen for debugging
-    DrawText(("Y Force: " + std::to_string(Fy)).c_str(), 10, 70, 20, BLACK);
+    // DrawText(("X Velocity: " + std::to_string(vx)).c_str(), 10, 10, 20, BLACK);
+    // DrawText(("Y Velocity: " + std::to_string(vy)).c_str(), 10, 30, 20, BLACK);
+    // DrawText(("X Force: " + std::to_string(Fx)).c_str(), 10, 50, 20, BLACK);
+    // DrawText(("Y Force: " + std::to_string(Fy)).c_str(), 10, 70, 20, BLACK);
 }

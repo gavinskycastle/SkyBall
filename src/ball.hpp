@@ -11,6 +11,7 @@ class Ball {
         Ball(int x, int y);
         void init(std::string assetPathPrefix);
         void kick(float Fx, float Fy);
+        void bounceBack(float Fx, float Fy);
         void update(float relDt, std::vector<Player>& players);
         void close();
     private:

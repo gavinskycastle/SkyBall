@@ -8,7 +8,7 @@
 #include "../libs/raylib/src/raylib.h"
 
 #ifndef PROJECT_NAME
-#define PROJECT_NAME "ScoreJam37"
+#define PROJECT_NAME "SkyBall"
 #endif
 
 #ifndef VERSION
