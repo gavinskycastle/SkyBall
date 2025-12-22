@@ -73,7 +73,9 @@ void Ball::bounceBack(float bFx, float bFy) {
 
 }
 
-void Ball::update(float relDt, std::vector<Player>& players) {
+bool Ball::update(float relDt, std::vector<Player>& players, Rectangle fieldBounds, Rectangle goalBoundA, Rectangle goalBoundB) {
+    bool stateChanged = false;
+    
     Rectangle ballRect = Rectangle{x-textureSize, y-textureSize, (float)(textureSize * 2), (float)(textureSize * 2)};
     
     for (Player& player : players) {
@@ -82,6 +84,30 @@ void Ball::update(float relDt, std::vector<Player>& players) {
             kick((vx - (player.x + player.width / 2.0f - x)) * 0.15f, (vy - (player.y + player.length / 2.0f - y)) * 0.15f);
         }
     }
+    
+    if (ballState == IN_PLAY) {
+        if (CheckCollisionRecs(ballRect, goalBoundA) || CheckCollisionRecs(ballRect, goalBoundB)) {
+            ballState = SCORED;
+            stateChanged = true;
+        } else if (!CheckCollisionRecs(ballRect, fieldBounds)) {
+            ballState = FALLEN;
+            stateChanged = true;
+        }
+    } else if (ballState == SCORED) {
+        // If the y value of the ball is above or below either goal, bring it back inside the goal
+        if (y < goalBoundA.y) {
+            y = goalBoundA.y;
+        } else if (y > goalBoundA.y + goalBoundA.height) {
+            y = goalBoundA.y + goalBoundA.height;
+        }
+    } else if (ballState == FALLEN) {
+        Fx = 0;
+        Fy = 0;
+        vx = 0;
+        vy = 0;
+        camera.position = Vector3{camera.position.x + 0.2f * relDt, camera.position.y, camera.position.z};
+    }
+    
     // Update ball physics
     vx += Fx * relDt;
     vy += Fy * relDt;
@@ -152,4 +178,6 @@ void Ball::update(float relDt, std::vector<Player>& players) {
     // DrawText(("Y Velocity: " + std::to_string(vy)).c_str(), 10, 30, 20, BLACK);
     // DrawText(("X Force: " + std::to_string(Fx)).c_str(), 10, 50, 20, BLACK);
     // DrawText(("Y Force: " + std::to_string(Fy)).c_str(), 10, 70, 20, BLACK);
+    
+    return stateChanged;
 }

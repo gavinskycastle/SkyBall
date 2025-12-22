@@ -25,6 +25,7 @@ struct GameInstanceState {
     GameState gameState = MAIN_MENU;
     GameState gameOverReturnState = PLAY;
     int score = 0;
+    int round = 1;
     Player player = Player();
     Ball* ball = new Ball(GetScreenWidth()/2, GetScreenHeight()/2);
 };

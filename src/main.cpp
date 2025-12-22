@@ -24,6 +24,8 @@ Texture2D backgroundTexture;
 
 Color grassGreen = Color{89, 175, 35, 255};
 Rectangle fieldBounds = Rectangle{54, 34, 732, 492};
+Rectangle goalBoundA = Rectangle{0, 178, 64, 200};
+Rectangle goalBoundB = Rectangle{776, 178, 64, 200};
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -45,6 +47,7 @@ void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color 
 
 void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
+    gameInstance.round = 1;
     gameInstance.player = Player();
     gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
     gameInstance.ball->init(assetPathPrefix);
@@ -170,12 +173,26 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
     }
 }
 
+void IterateToNextRound(GameInstanceState &gameInstance) {
+    if (gameInstance.round == 10) {
+        gameInstance.gameState = GAME_OVER;
+        gameInstance.gameOverReturnState = PLAY;
+    } else {
+        gameInstance.round += 1;
+        // Reset player and ball
+        gameInstance.player = Player();
+        delete gameInstance.ball;
+        gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
+        gameInstance.ball->init(assetPathPrefix);
+    }
+}
+
 void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     ClearBackground(BLANK);
     DrawTexture(backgroundTexture, 0, 0, WHITE);
-    DrawRectangle(fieldBounds.x, fieldBounds.y, fieldBounds.width, fieldBounds.height, grassGreen);
-    DrawRectangle(0, 178, 64, 200, grassGreen);
-    DrawRectangle(776, 178, 64, 200, grassGreen);
+    DrawRectangleRec(fieldBounds, grassGreen);
+    DrawRectangleRec(goalBoundA, grassGreen);
+    DrawRectangleRec(goalBoundB, grassGreen);
     DrawTexture(fieldTexture, 0, 0, WHITE);
     
     //Player Moving (Walking and Running)
@@ -183,21 +200,33 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
 
     // Only 3D rendered object
     std::vector<Player> players = {gameInstance.player};
-    gameInstance.ball->update(relDt, players);
+    bool stateChanged = gameInstance.ball->update(relDt, players, fieldBounds, goalBoundA, goalBoundB);
+    if (stateChanged) {
+        if (gameInstance.ball->ballState == SCORED) {
+            gameInstance.score = static_cast<int>(50.0f + pow(1.17, ((gameInstance.ball->velocityMultiplier - 0.5f) * 50 + 5))); //score is y=50+1.17^(50x+5) where x is number of kicks
+            IterateToNextRound(gameInstance);
+        } else if (gameInstance.ball->ballState == FALLEN) {
+            IterateToNextRound(gameInstance);
+        }
+    }
+    // // Kick ball with arrow keys
+    // if (IsKeyPressed(KEY_UP)) {
+    //     gameInstance.ball->kick(0.0f, -1.0f);
+    // }
+    // if (IsKeyPressed(KEY_DOWN)) {
+    //     gameInstance.ball->kick(0.0f, 1.0f);
+    // }
+    // if (IsKeyPressed(KEY_LEFT)) {
+    //     gameInstance.ball->kick(-1.0f, 0.0f);
+    // }
+    // if (IsKeyPressed(KEY_RIGHT)) {
+    //     gameInstance.ball->kick(1.0f, 0.0f);
+    // }
     
-    // Kick ball with arrow keys
-    if (IsKeyPressed(KEY_UP)) {
-        gameInstance.ball->kick(0.0f, -1.0f);
-    }
-    if (IsKeyPressed(KEY_DOWN)) {
-        gameInstance.ball->kick(0.0f, 1.0f);
-    }
-    if (IsKeyPressed(KEY_LEFT)) {
-        gameInstance.ball->kick(-1.0f, 0.0f);
-    }
-    if (IsKeyPressed(KEY_RIGHT)) {
-        gameInstance.ball->kick(1.0f, 0.0f);
-    }
+    DrawRectangleLines(screenWidth/2-100, 0, 200, 60, BLACK);
+    DrawRectangleLines(screenWidth/2-100, 59, 200, 20, BLACK);
+    DrawTextCentered(std::to_string(gameInstance.score).c_str(), screenWidth/2, 10, 50, BLACK);
+    DrawTextCentered(("Round " + std::to_string(gameInstance.round)).c_str(), screenWidth/2, 62, 15, BLACK);
     
     DrawTexture(goalTexture, 4, 182, WHITE);
     DrawTexture(goalTexture, 772, 182, WHITE);
@@ -205,6 +234,7 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     if (IsKeyPressed(KEY_L)) {
         gameInstance.gameState = GAME_OVER;
     }
+    
     
     // 2D rendering
     switch(gameInstance.gameState) {

@@ -6,14 +6,23 @@
 #include <vector>
 #include "player.hpp"
 
+enum BallState {
+    IN_PLAY,
+    SCORED,
+    FALLEN
+};
+
 class Ball {
     public:
         Ball(int x, int y);
         void init(std::string assetPathPrefix);
         void kick(float Fx, float Fy);
         void bounceBack(float Fx, float Fy);
-        void update(float relDt, std::vector<Player>& players);
+        bool update(float relDt, std::vector<Player>& players, Rectangle fieldBounds, Rectangle goalBoundA, Rectangle goalBoundB);
         void close();
+        
+        BallState ballState = IN_PLAY;
+        float velocityMultiplier = 0.5f; // increase after each kick
     private:
         const float friction = 0.995f;
         
@@ -37,8 +46,6 @@ class Ball {
         
         float Fx = 0;
         float Fy = 0;
-        
-        float velocityMultiplier = 0.5f; // increase after each kick
 };
 
 #endif // BALL_H
