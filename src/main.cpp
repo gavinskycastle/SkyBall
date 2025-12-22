@@ -45,7 +45,7 @@ void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
     gameInstance.camera.fovy = 45.0f;
     gameInstance.targetFov = 45.0f;
-    gameInstance.camera.position = Vector3{ 10.0f, 10.0f, 10.0f }; // Camera position
+    gameInstance.camera.position = Vector3{ 10.0f, 0.0f, 0.0f }; // Camera position
     gameInstance.camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     gameInstance.camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     gameInstance.camera.fovy = 45.0f;                              // Camera field-of-view Y
@@ -179,10 +179,17 @@ void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &render
     BeginTextureMode(renderTexture);
         ClearBackground(Color{145, 255, 81, 255});
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
+
+        static float rotationAngle = 0.0f;
+        GuiSliderBar(Rectangle{170, 10, 200, 20}, NULL, NULL, &rotationAngle, -180.0f, 180.0f);
+        GuiLabel(Rectangle{10, 10, 250, 15}, ("Angle " + std::to_string(rotationAngle)).c_str());
         
         // 3D rendering
         BeginMode3D(gameInstance.camera);
-            DrawModelEx(soccerBallModel, {1.0f, 0.0f, 0.0f}, -90.0f, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
+            DrawModelEx(soccerBallModel, Vector3{0.0f, 0.0f, 0.0f}, 
+                        Vector3{1.0f, 0.0f, 0.0f}, 
+                        rotationAngle, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
+            DrawSphere(Vector3{0.0f, 0.0f, 0.0f}, 0.1f, RED);
         EndMode3D();
         
         // 2D rendering
