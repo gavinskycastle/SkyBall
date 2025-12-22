@@ -24,6 +24,9 @@ Texture2D fieldTexture;
 Texture2D goalTexture;
 Texture2D backgroundTexture;
 
+Color grassGreen = Color{89, 175, 35, 255};
+Rectangle fieldBounds = Rectangle{54, 34, 732, 492};
+
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
 char highScoreName[17] = "";
@@ -93,7 +96,7 @@ void DrawGameOver(GameInstanceState &gameInstance) {
 }
 
 void DrawMainMenu(GameInstanceState &gameInstance) {
-    DrawTextCentered("SkyBall", screenWidth/2-35, screenHeight/2-125, 50, BLACK);
+    DrawTextCentered("SkyBall", screenWidth/2, screenHeight/2-125, 50, BLACK);
     
     GuiSetStyle(DEFAULT, TEXT_SIZE, 25);
     if (GuiButton(Rectangle {static_cast<float>(screenWidth/2-100), screenHeight/2-50, 200, 50}, "Play") == 1) {
@@ -220,11 +223,14 @@ bool app_loop() {
     BeginDrawing();
         ClearBackground(BLANK);
         DrawTexture(backgroundTexture, 0, 0, WHITE);
-        DrawRectangle(54, 34, 732, 492, Color{89, 175, 35, 255});
+        DrawRectangle(fieldBounds.x, fieldBounds.y, fieldBounds.width, fieldBounds.height, grassGreen);
+        DrawRectangle(0, 178, 64, 200, grassGreen);
+        DrawRectangle(776, 178, 64, 200, grassGreen);
         DrawTexture(fieldTexture, 0, 0, WHITE);
         
+        
         //Player Moving (Walking and Running)
-        player.playerMovement(relDt);
+        player.playerMovement(relDt, fieldBounds);
 
         // Only 3D rendered object
         std::vector<Player> players = {player};

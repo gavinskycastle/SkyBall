@@ -38,7 +38,7 @@ class Ball {
         float Fx = 0;
         float Fy = 0;
         
-        float velocityMultiplier = 1.0f; // increase after each kick
+        float velocityMultiplier = 0.5f; // increase after each kick
 };
 
 #endif // BALL_H

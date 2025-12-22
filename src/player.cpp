@@ -9,7 +9,7 @@ void Player::rectangleIdle(float delta) {
     DrawRectangle((int)x, (int)y, (int)width, (int)length, RED);
 }
 
-void Player::rectangleWalk(float delta) {
+void Player::rectangleWalk(float delta, Rectangle fieldBounds) {
     float speed = IsKeyDown(KEY_LEFT_SHIFT) ? walkSpeed * 1.5f : walkSpeed;
     
     if (IsKeyDown(KEY_W)) {
@@ -25,13 +25,13 @@ void Player::rectangleWalk(float delta) {
         x += speed * delta;
     }
     // Clamp position to screen bounds
-    if (x < 0.0f) x = 0.0f;
-    if (y < 0.0f) y = 0.0f;
-    if (x + width > (float)GetScreenWidth()) x = (float)GetScreenWidth() - width;
-    if (y + length > (float)GetScreenHeight()) y = (float)GetScreenHeight() - length;
+    if (x < fieldBounds.x) x = fieldBounds.x;
+    if (y < fieldBounds.y) y = fieldBounds.y;
+    if (x + width > fieldBounds.x + fieldBounds.width) x = fieldBounds.x + fieldBounds.width - width;
+    if (y + length > fieldBounds.y + fieldBounds.height) y = fieldBounds.y + fieldBounds.height - length;
 }
 
-void Player::rectangleRun(float delta) {
+void Player::rectangleRun(float delta, Rectangle fieldBounds) {
     float speed = runSpeed;
     
     if (IsKeyDown(KEY_W)) {
@@ -46,18 +46,18 @@ void Player::rectangleRun(float delta) {
     if (IsKeyDown(KEY_D)) {
         x += speed * delta;
     }
-    // Clamp position to screen bounds
-    if (x < 0.0f) x = 0.0f;
-    if (y < 0.0f) y = 0.0f;
-    if (x + width > (float)GetScreenWidth()) x = (float)GetScreenWidth() - width;
-    if (y + length > (float)GetScreenHeight()) y = (float)GetScreenHeight() - length;
+    // Clamp position to field bounds
+    if (x < fieldBounds.x) x = fieldBounds.x;
+    if (y < fieldBounds.y) y = fieldBounds.y;
+    if (x + width > fieldBounds.x + fieldBounds.width) x = fieldBounds.x + fieldBounds.width - width;
+    if (y + length > fieldBounds.y + fieldBounds.height) y = fieldBounds.y + fieldBounds.height - length;
 }
 
-void Player::playerMovement(float delta) {
+void Player::playerMovement(float delta, Rectangle fieldBounds) {
     DrawRectangle((int)x, (int)y, (int)width, (int)length, RED);
     if (IsKeyDown(KEY_LEFT_SHIFT)) {
-        rectangleRun(delta);
+        rectangleRun(delta, fieldBounds);
     } else {
-        rectangleWalk(delta);
+        rectangleWalk(delta, fieldBounds);
     }
 }

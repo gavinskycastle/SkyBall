@@ -34,6 +34,9 @@ void Ball::kick(float aFx, float aFy) {
         Fx += aFx;
         Fy += aFy;
         lastKickTime = currentTime; // Update the last kick time
+        
+        velocityMultiplier += 0.02f;
+        std::cout << "Velocity Multiplier: " << velocityMultiplier << std::endl;
     }
 }
 

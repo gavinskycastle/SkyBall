@@ -26,9 +26,9 @@ class Player {
         float runSpeed = walkSpeed * 2.0f;
         
         void rectangleIdle(float delta);
-        void rectangleWalk(float delta);
-        void rectangleRun(float delta);
-        void playerMovement(float delta);
+        void rectangleWalk(float delta, Rectangle fieldBounds);
+        void rectangleRun(float delta, Rectangle fieldBounds);
+        void playerMovement(float delta, Rectangle fieldBounds);
 };
 
 #endif
