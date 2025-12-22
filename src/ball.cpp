@@ -39,6 +39,9 @@ void Ball::kick(float aFx, float aFy) {
         
         velocityMultiplier += 0.05f;
         std::cout << "Velocity Multiplier: " << velocityMultiplier << std::endl;
+        // Play Sound Effect
+        Sound ballKickSound = LoadSound("assets/kick.ogg");
+        PlaySound(ballKickSound);
     }
 }
 
@@ -88,9 +91,15 @@ bool Ball::update(float relDt, std::vector<Player>& players, Rectangle fieldBoun
     if (ballState == IN_PLAY) {
         if (CheckCollisionRecs(ballRect, goalBoundA) || CheckCollisionRecs(ballRect, goalBoundB)) {
             ballState = SCORED;
+            // Play Sound Effect
+            Sound goalSound = LoadSound("assets/win.ogg");
+            PlaySound(goalSound);
             stateChanged = true;
         } else if (!CheckCollisionRecs(ballRect, fieldBounds)) {
             ballState = FALLEN;
+            // Play Sound Effect
+            Sound fallSound = LoadSound("assets/red.wav");
+            PlaySound(fallSound);
             stateChanged = true;
         }
     } else if (ballState == SCORED) {

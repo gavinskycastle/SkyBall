@@ -191,6 +191,8 @@ void IterateToNextRound(GameInstanceState &gameInstance) {
     if (gameInstance.round == 10) {
         gameInstance.gameState = GAME_OVER;
         gameInstance.gameOverReturnState = PLAY;
+        Sound gameOverSound = LoadSound((assetPathPrefix + "buzzer.ogg").c_str());
+        PlaySound(gameOverSound);
     } else {
         gameInstance.round += 1;
         // Reset player and ball
