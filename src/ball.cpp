@@ -3,9 +3,11 @@
 
 #include "ball.hpp"
 
-Ball::Ball(int x, int y) {
+Ball::Ball(int x, int y, int round) {
     this->x = x;
     this->y = y;
+    
+    this->velocityMultiplier = 0.5f + (round - 1) * 0.1f;
     
     static Model soccerBallModel;
 }
@@ -38,7 +40,7 @@ void Ball::kick(float aFx, float aFy) {
         lastKickTime = currentTime; // Update the last kick time
         
         velocityMultiplier += 0.05f;
-        std::cout << "Velocity Multiplier: " << velocityMultiplier << std::endl;
+        //std::cout << "Velocity Multiplier: " << velocityMultiplier << std::endl;
     }
 }
 
@@ -97,8 +99,8 @@ bool Ball::update(float relDt, std::vector<Player>& players, Rectangle fieldBoun
         // If the y value of the ball is above or below either goal, bring it back inside the goal
         if (y < goalBoundA.y) {
             y = goalBoundA.y;
-        } else if (y > goalBoundA.y + goalBoundA.height) {
-            y = goalBoundA.y + goalBoundA.height;
+        } else if (y > goalBoundA.y + goalBoundA.height - textureSize) {
+            y = goalBoundA.y + goalBoundA.height - textureSize;
         }
     } else if (ballState == FALLEN) {
         Fx = 0;

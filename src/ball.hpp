@@ -14,7 +14,7 @@ enum BallState {
 
 class Ball {
     public:
-        Ball(int x, int y);
+        Ball(int x, int y, int round = 1);
         void init(std::string assetPathPrefix);
         void kick(float Fx, float Fy);
         void bounceBack(float Fx, float Fy);

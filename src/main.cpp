@@ -205,7 +205,7 @@ void IterateToNextRound(GameInstanceState &gameInstance) {
         // Reset player and ball
         gameInstance.player = Player();
         delete gameInstance.ball;
-        gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
+        gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2, gameInstance.round);
         gameInstance.ball->init(assetPathPrefix);
     }
 }
