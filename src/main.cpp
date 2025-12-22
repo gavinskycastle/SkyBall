@@ -281,6 +281,7 @@ void init_app() {
     
     backgroundMusic = LoadMusicStream((assetPathPrefix + "Cruising_for_Goblins.mp3").c_str());
     PlayMusicStream(backgroundMusic);
+    SetMusicVolume(backgroundMusic, 0.2f);
     
     selectLeaderboardMode(PLAY);
 }
