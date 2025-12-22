@@ -316,6 +316,10 @@ void init_app() {
     SetMusicVolume(backgroundMusic, 0.2f);
     
     selectLeaderboardMode(PLAY);
+    
+    #if defined(PLATFORM_WEB) // cap framerate on web cause some calculations arent working right
+        SetTargetFPS(60);
+    #endif
 }
 
 bool app_loop() {
