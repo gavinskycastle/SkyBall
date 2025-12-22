@@ -8,6 +8,7 @@
 
 #include "main.hpp"
 #include "leaderboard.hpp"
+#include "ball.hpp"
 #include <raymath.h>
 #include "player.hpp"
 
@@ -20,8 +21,6 @@ bool windowShouldClose = false;
 std::string assetPathPrefix = "../assets/";
 
 Texture2D fieldTexture;
-
-Model soccerBallModel;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -38,6 +37,8 @@ RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
 Footballer player = Footballer();
 
+Ball testBall = Ball(screenWidth/2, screenHeight/2);
+
 void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
     DrawText(text, posX-(textWidth/2), posY, fontSize, color);
@@ -45,13 +46,6 @@ void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color 
 
 void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
-    gameInstance.camera.fovy = 45.0f;
-    gameInstance.targetFov = 45.0f;
-    gameInstance.camera.position = Vector3{ 10.0f, 10.0f, 10.0f }; // Camera position
-    gameInstance.camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    gameInstance.camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    gameInstance.camera.fovy = 45.0f;                              // Camera field-of-view Y
-    gameInstance.camera.projection = CAMERA_PERSPECTIVE;           // Camera projection type
 }
 
 void loadLeaderboardData(std::vector<std::string> &leaderboardNames, std::vector<int> &leaderboardScores) {
@@ -175,21 +169,9 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
 }
 
 void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &renderTexture, float relDt) {
-    UpdateCamera(&gameInstance.camera, CAMERA_ORBITAL);
-    
     // Draw
     BeginTextureMode(renderTexture);
-        ClearBackground(Color{145, 255, 81, 255});
-        
-        DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
-        // Draw Player
-        DrawRectangle(10, 10, 8, 8, CLITERAL(Color){255, 0, 0, 255});
-        
-        // 3D rendering
-        BeginMode3D(gameInstance.camera);
-            //DrawModelEx(soccerBallModel, {1.0f, 0.0f, 0.0f}, -90.0f, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
-
-        EndMode3D();
+        ClearBackground(BLANK);
         
         // 2D rendering
         switch(gameInstance.gameState) {
@@ -223,18 +205,38 @@ void init_app() {
 
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
     
-    soccerBallModel = LoadModel((assetPathPrefix + "soccerBall/soccerBall.obj").c_str());
-    
     selectLeaderboardMode(PLAY);
+    
+    testBall.init(assetPathPrefix);
 }
 
 bool app_loop() {
     float relDt = GetFrameTime() * 60.0f; // Calculate delta time in relation to 60 frames per second
     
     BeginDrawing();
-        ClearBackground(BLACK);
-            UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);
-            DrawTextureRec(mainRenderTexture.texture, Rectangle{0, 0, (float)mainRenderTexture.texture.width, (float)-mainRenderTexture.texture.height}, Vector2{0, 0}, WHITE);
+        ClearBackground(Color{145, 255, 81, 255});
+        DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
+        
+        // Only 3D rendered object
+        testBall.update(relDt);
+        
+        // Kick ball with arrow keys
+        if (IsKeyPressed(KEY_UP)) {
+            testBall.kick(0.0f, -50.0f);
+        }
+        if (IsKeyPressed(KEY_DOWN)) {
+            testBall.kick(0.0f, 50.0f);
+        }
+        if (IsKeyPressed(KEY_LEFT)) {
+            testBall.kick(-50.0f, 0.0f);
+        }
+        if (IsKeyPressed(KEY_RIGHT)) {
+            testBall.kick(50.0f, 0.0f);
+        }
+        
+        // Draw UI/holdovers from Cone Stacker
+        UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);
+        DrawTextureRec(mainRenderTexture.texture, Rectangle{0, 0, (float)mainRenderTexture.texture.width, (float)-mainRenderTexture.texture.height}, Vector2{0, 0}, WHITE);
     EndDrawing();
     
     return !windowShouldClose;
