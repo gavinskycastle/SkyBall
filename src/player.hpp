@@ -27,22 +27,22 @@ class Footballer {
         int width = 8;
 
     public:
-        DrawRectangle(int x, int y, int length, int width, Color GRAY);
-        moveRectangle();
+        // DrawRectangle(int x, int y, int length, int width, Color GRAY);
+        // moveRectangle();
 };
 
 
 void moveRectangle() {
-    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
-        Footballer.y += distance * delta;
-    }
-    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-        Footballer.x -= distance * delta;
-    }
-    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
-        Footballer.y -= distance * delta;
-    }
-    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-        Footballer.x += distance * delta;
-    }
+    // if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
+    //     Footballer.y += distance * delta;
+    // }
+    // if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+    //     Footballer.x -= distance * delta;
+    // }
+    // if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
+    //     Footballer.y -= distance * delta;
+    // }
+    // if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+    //     Footballer.x += distance * delta;
+    // }
 }

@@ -1,5 +1,4 @@
 #include "../libs/raylib/src/raylib.h"
-#include "../libs/raylib/src/rlgl.h"
 #include "helper.hpp"
 
 #define RAYGUI_IMPLEMENTATION
@@ -9,6 +8,7 @@
 
 #include "main.hpp"
 #include "leaderboard.hpp"
+#include "ball.hpp"
 #include <raymath.h>
 
 // Window setup
@@ -20,9 +20,6 @@ bool windowShouldClose = false;
 std::string assetPathPrefix = "../assets/";
 
 Texture2D fieldTexture;
-
-Model soccerBallModel;
-Vector3 soccerBallCenter;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -38,6 +35,8 @@ GameSettings gameSettings;
 RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
 
+Ball testBall = Ball(0, 0);
+
 void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
     DrawText(text, posX-(textWidth/2), posY, fontSize, color);
@@ -45,11 +44,6 @@ void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color 
 
 void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
-    gameInstance.camera.position = Vector3{ 50.0f, 0.0f, 0.0f }; // Camera position
-    gameInstance.camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    gameInstance.camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    gameInstance.camera.fovy = 45.0f;                              // Camera field-of-view Y
-    gameInstance.camera.projection = CAMERA_PERSPECTIVE;           // Camera projection type
 }
 
 void loadLeaderboardData(std::vector<std::string> &leaderboardNames, std::vector<int> &leaderboardScores) {
@@ -173,35 +167,10 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
 }
 
 void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &renderTexture, float relDt) {
-    UpdateCamera(&gameInstance.camera, CAMERA_ORBITAL);
-    
     // Draw
     BeginTextureMode(renderTexture);
         ClearBackground(Color{145, 255, 81, 255});
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
-
-        static float rotationAngle = 0.0f;
-        GuiSliderBar(Rectangle{170, 10, 200, 20}, NULL, NULL, &rotationAngle, -180.0f, 180.0f);
-        GuiLabel(Rectangle{10, 10, 250, 15}, ("Angle " + std::to_string(rotationAngle)).c_str());
-        
-        // 3D rendering
-        BeginMode3D(gameInstance.camera);
-            rlPushMatrix();
-
-            // Translate to the origin relative to the soccer ball's center
-            rlTranslatef(soccerBallCenter.x, soccerBallCenter.y, soccerBallCenter.z);
-
-            // Apply rotation around the soccer ball's center
-            rlRotatef(rotationAngle, 1.0f, 0.0f, 0.0f);
-
-            // Translate back to the original position
-            rlTranslatef(-soccerBallCenter.x, -soccerBallCenter.y, -soccerBallCenter.z);
-            
-            // Draw the soccer ball model
-            DrawModel(soccerBallModel, Vector3{0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
-            
-            rlPopMatrix();
-        EndMode3D();
         
         // 2D rendering
         switch(gameInstance.gameState) {
@@ -235,15 +204,9 @@ void init_app() {
 
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
     
-    soccerBallModel = LoadModel((assetPathPrefix + "soccerBall/soccerBall.obj").c_str());
-    BoundingBox soccerBallBox = GetModelBoundingBox(soccerBallModel);
-    soccerBallCenter = Vector3{
-        soccerBallBox.min.x + ((soccerBallBox.max.x - soccerBallBox.min.x) / 2.0f),
-        soccerBallBox.min.y + ((soccerBallBox.max.y - soccerBallBox.min.y) / 2.0f),
-        soccerBallBox.min.z + ((soccerBallBox.max.z - soccerBallBox.min.z) / 2.0f)
-    };
-    
     selectLeaderboardMode(PLAY);
+    
+    testBall.init(assetPathPrefix);
 }
 
 bool app_loop() {
@@ -253,6 +216,10 @@ bool app_loop() {
         ClearBackground(BLACK);
             UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);
             DrawTextureRec(mainRenderTexture.texture, Rectangle{0, 0, (float)mainRenderTexture.texture.width, (float)-mainRenderTexture.texture.height}, Vector2{0, 0}, WHITE);
+            
+            RenderTexture2D ballTexture = testBall.update(relDt);
+            DrawTexturePro(ballTexture.texture, Rectangle{0, 0, (float)ballTexture.texture.width, (float)ballTexture.texture.height}, Rectangle{0, 0, (float)ballTexture.texture.width * 2, (float)ballTexture.texture.height * 2}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawRectangleLines(0, 0, ballTexture.texture.width * 2, ballTexture.texture.height * 2, RED);
     EndDrawing();
     
     return !windowShouldClose;
