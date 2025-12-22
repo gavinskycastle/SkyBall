@@ -21,6 +21,7 @@ std::string assetPathPrefix = "../assets/";
 Texture2D fieldTexture;
 Texture2D goalTexture;
 Texture2D backgroundTexture;
+Texture2D logoTexture;
 
 Color grassGreen = Color{89, 175, 35, 255};
 Rectangle fieldBounds = Rectangle{54, 34, 732, 492};
@@ -52,7 +53,7 @@ void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
     gameInstance.round = 1;
     gameInstance.player = Player();
-    gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
+    gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2, gameInstance.round);
     gameInstance.ball->init(assetPathPrefix);
 }
 
@@ -99,7 +100,7 @@ void DrawGameOver(GameInstanceState &gameInstance) {
 }
 
 void DrawMainMenu(GameInstanceState &gameInstance) {
-    DrawTextCentered("SkyBall", screenWidth/2, screenHeight/2-125, 50, BLACK);
+    DrawTexture(logoTexture, screenWidth/2 - logoTexture.width/2, screenHeight/2 - 150, WHITE);
     
     GuiSetStyle(DEFAULT, TEXT_SIZE, 25);
     if (GuiButton(Rectangle {static_cast<float>(screenWidth/2-100), screenHeight/2-50, 200, 50}, "Play") == 1) {
@@ -221,7 +222,7 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     DrawTexture(fieldTexture, 0, 0, WHITE);
     
     //Player Moving (Walking and Running)
-    if (gameInstance.gameState == PLAY) gameInstance.player.playerMovement(relDt, fieldBounds);
+    if (gameInstance.gameState == PLAY) { gameInstance.player.playerMovement(relDt, fieldBounds); }
 
     // Only 3D rendered object
     std::vector<Player> players = {gameInstance.player};
@@ -254,10 +255,12 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     //     gameInstance.ball->kick(1.0f, 0.0f);
     // }
     
-    DrawRectangleLines(screenWidth/2-100, 0, 200, 60, BLACK);
-    DrawRectangleLines(screenWidth/2-100, 59, 200, 20, BLACK);
-    DrawTextCentered(std::to_string(gameInstance.score).c_str(), screenWidth/2, 10, 50, BLACK);
-    DrawTextCentered(("Round " + std::to_string(gameInstance.round)).c_str(), screenWidth/2, 62, 15, BLACK);
+    if (gameInstance.gameState == PLAY) { 
+        DrawRectangleLines(screenWidth/2-100, 0, 200, 60, BLACK);
+        DrawRectangleLines(screenWidth/2-100, 59, 200, 20, BLACK);
+        DrawTextCentered(std::to_string(gameInstance.score).c_str(), screenWidth/2, 10, 50, BLACK);
+        DrawTextCentered(("Round " + std::to_string(gameInstance.round)).c_str(), screenWidth/2, 62, 15, BLACK);
+    }
     
     DrawTexture(goalTexture, 4, 182, WHITE);
     DrawTexture(goalTexture, 772, 182, WHITE);
@@ -291,6 +294,7 @@ void init_app() {
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
     goalTexture = LoadTextureFromImage2x("goal.png");
     backgroundTexture = LoadTextureFromImage2x("background.png");
+    logoTexture = LoadTextureFromImage2x("logo.png");
     
     backgroundMusic = LoadMusicStream((assetPathPrefix + "Cruising_for_Goblins.mp3").c_str());
     PlayMusicStream(backgroundMusic);
