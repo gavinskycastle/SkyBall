@@ -22,7 +22,7 @@ std::string assetPathPrefix = "../assets/";
 Texture2D fieldTexture;
 
 Model soccerBallModel;
-Vector3 soccerBallCenterPoint;
+Vector3 soccerBallCenter;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -45,9 +45,7 @@ void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color 
 
 void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
-    gameInstance.camera.fovy = 45.0f;
-    gameInstance.targetFov = 45.0f;
-    gameInstance.camera.position = Vector3{ 10.0f, 0.0f, 0.0f }; // Camera position
+    gameInstance.camera.position = Vector3{ 50.0f, 0.0f, 0.0f }; // Camera position
     gameInstance.camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     gameInstance.camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     gameInstance.camera.fovy = 45.0f;                              // Camera field-of-view Y
@@ -189,15 +187,20 @@ void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &render
         // 3D rendering
         BeginMode3D(gameInstance.camera);
             rlPushMatrix();
-            rlTranslatef(1.0f, 1.0f, 1.0f);
+
+            // Translate to the origin relative to the soccer ball's center
+            rlTranslatef(soccerBallCenter.x, soccerBallCenter.y, soccerBallCenter.z);
+
+            // Apply rotation around the soccer ball's center
             rlRotatef(rotationAngle, 1.0f, 0.0f, 0.0f);
-            DrawModelEx(soccerBallModel, Vector3{0.0f, 0.0f, 0.0f}, 
-                        Vector3{1.0f, 0.0f, 0.0f}, 
-                        rotationAngle, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
-                        
+
+            // Translate back to the original position
+            rlTranslatef(-soccerBallCenter.x, -soccerBallCenter.y, -soccerBallCenter.z);
+            
+            // Draw the soccer ball model
+            DrawModel(soccerBallModel, Vector3{0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
+            
             rlPopMatrix();
-            DrawSphere(Vector3{0.0f, 0.0f, 0.0f}, 0.1f, RED);
-            DrawSphere(Vector3{1.0f, 1.0f, 1.0f}, 0.1f, BLUE);
         EndMode3D();
         
         // 2D rendering
@@ -234,7 +237,7 @@ void init_app() {
     
     soccerBallModel = LoadModel((assetPathPrefix + "soccerBall/soccerBall.obj").c_str());
     BoundingBox soccerBallBox = GetModelBoundingBox(soccerBallModel);
-    soccerBallCenterPoint = Vector3{
+    soccerBallCenter = Vector3{
         soccerBallBox.min.x + ((soccerBallBox.max.x - soccerBallBox.min.x) / 2.0f),
         soccerBallBox.min.y + ((soccerBallBox.max.y - soccerBallBox.min.y) / 2.0f),
         soccerBallBox.min.z + ((soccerBallBox.max.z - soccerBallBox.min.z) / 2.0f)
