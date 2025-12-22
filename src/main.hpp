@@ -20,9 +20,6 @@ struct GameSettings {
 
 struct GameInstanceState {
     int player;
-    // Camera setup
-    Camera3D camera = { 0 };
-    float targetFov = 45.0f;
     // Game instance state setup
     GameState gameState = MAIN_MENU;
     GameState gameOverReturnState = PLAY;
