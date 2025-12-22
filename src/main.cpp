@@ -28,6 +28,7 @@ Rectangle goalBoundA = Rectangle{0, 178, 64, 200};
 Rectangle goalBoundB = Rectangle{776, 178, 64, 200};
 
 Music backgroundMusic;
+double timeOfLastRoundEnd = 0.0;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -131,9 +132,15 @@ void DrawOptions(GameInstanceState &gameInstance) {
 
     
     GuiLabel(Rectangle {optsX + 170.0f, optsY + 120.0f, 100, 25}, "SFX Volume");
-GuiSliderBar(Rectangle{optsX + 265.0f, optsY + 125.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.sfxVolume*100)) + "%").c_str(), &gameSettings.sfxVolume, 0, 1);
+    GuiSliderBar(Rectangle{optsX + 265.0f, optsY + 125.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.sfxVolume*100)) + "%").c_str(), &gameSettings.sfxVolume, 0, 1);
     
-    // SetSoundVolume(coneDrop, gameSettings.sfxVolume);
+    GuiLabel(Rectangle {optsX + 170.0f, optsY + 150.0f, 105, 25}, "Music Volume");
+    GuiSliderBar(Rectangle{optsX + 275.0f, optsY + 155.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.musicVolume*100)) + "%").c_str(), &gameSettings.musicVolume, 0, 1);
+    
+    // Update sound volumes
+    //SetSoundVolume(, gameSettings.sfxVolume);
+    
+    SetMusicVolume(backgroundMusic, gameSettings.musicVolume * 0.2);
     
     if (GuiButton(Rectangle{optsX + 245.0f, optsY + 360.0f, 150, 25}, "Back to Main Menu") == 1) {
         gameInstance.gameState = MAIN_MENU;
@@ -214,7 +221,7 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     DrawTexture(fieldTexture, 0, 0, WHITE);
     
     //Player Moving (Walking and Running)
-    gameInstance.player.playerMovement(relDt, fieldBounds);
+    if (gameInstance.gameState == PLAY) gameInstance.player.playerMovement(relDt, fieldBounds);
 
     // Only 3D rendered object
     std::vector<Player> players = {gameInstance.player};
@@ -222,11 +229,17 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     if (stateChanged) {
         if (gameInstance.ball->ballState == SCORED) {
             gameInstance.score += static_cast<int>(50.0f + pow(1.17, ((gameInstance.ball->velocityMultiplier - 0.5f) * 20 + 5))); //score is y=50+1.17^(50x+5) where x is number of kicks
-            IterateToNextRound(gameInstance);
+            timeOfLastRoundEnd = GetTime();
         } else if (gameInstance.ball->ballState == FALLEN) {
-            IterateToNextRound(gameInstance);
+            timeOfLastRoundEnd = GetTime();
         }
     }
+    
+    if (timeOfLastRoundEnd != 0.0 && GetTime() - timeOfLastRoundEnd > 1.5) {
+        timeOfLastRoundEnd = 0.0;
+        IterateToNextRound(gameInstance);
+    }
+    
     // // Kick ball with arrow keys
     // if (IsKeyPressed(KEY_UP)) {
     //     gameInstance.ball->kick(0.0f, -1.0f);
@@ -297,6 +310,6 @@ bool app_loop() {
 }
 
 void deinit_app() {
-    // UnloadSound(coneFall);
+    UnloadMusicStream(backgroundMusic);
     CloseAudioDevice();
 }
