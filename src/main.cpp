@@ -27,6 +27,8 @@ Rectangle fieldBounds = Rectangle{54, 34, 732, 492};
 Rectangle goalBoundA = Rectangle{0, 178, 64, 200};
 Rectangle goalBoundB = Rectangle{776, 178, 64, 200};
 
+Music backgroundMusic;
+
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
 char highScoreName[17] = "";
@@ -202,6 +204,8 @@ void IterateToNextRound(GameInstanceState &gameInstance) {
 }
 
 void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
+    UpdateMusicStream(backgroundMusic);
+    
     ClearBackground(BLANK);
     DrawTexture(backgroundTexture, 0, 0, WHITE);
     DrawRectangleRec(fieldBounds, grassGreen);
@@ -274,6 +278,9 @@ void init_app() {
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
     goalTexture = LoadTextureFromImage2x("goal.png");
     backgroundTexture = LoadTextureFromImage2x("background.png");
+    
+    backgroundMusic = LoadMusicStream((assetPathPrefix + "Cruising_for_Goblins.mp3").c_str());
+    PlayMusicStream(backgroundMusic);
     
     selectLeaderboardMode(PLAY);
 }
