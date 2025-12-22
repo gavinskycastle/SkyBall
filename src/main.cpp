@@ -13,8 +13,8 @@
 #include "player.hpp"
 
 // Window setup
-int screenWidth = 720; // Sprites are 2x scaled, so this will be 360x240
-const int screenHeight = 480;
+int screenWidth = 840; // Sprites are 2x scaled, so this will be 420x280
+const int screenHeight = 560;
 bool windowShouldClose = false;
 
 // Loading resources
@@ -135,8 +135,8 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
     
     GuiGroupBox(Rectangle{37, 20, 640, 430}, "Leaderboard");
     
-    selectedLeaderboardIndex = static_cast<int>(selectedLeaderboardMode);
-    GuiToggleGroup(Rectangle{55, 35, 150, 25}, "Classic", &selectedLeaderboardIndex);
+    //selectedLeaderboardIndex = static_cast<int>(selectedLeaderboardMode);
+    //GuiToggleGroup(Rectangle{55, 35, 150, 25}, "Classic", &selectedLeaderboardIndex);
     if (static_cast<GameState>(selectedLeaderboardIndex) != selectedLeaderboardMode) {
         selectedLeaderboardMode = static_cast<GameState>(selectedLeaderboardIndex);
         selectLeaderboardMode(selectedLeaderboardMode);
@@ -214,7 +214,7 @@ bool app_loop() {
     float relDt = GetFrameTime() * 60.0f; // Calculate delta time in relation to 60 frames per second
     
     BeginDrawing();
-        ClearBackground(Color{145, 255, 81, 255});
+        ClearBackground(Color{89, 175, 35, 255});
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
         
         //Player Moving (Walking and Running)

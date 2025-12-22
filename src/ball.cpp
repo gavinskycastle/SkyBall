@@ -48,14 +48,14 @@ void Ball::update(float relDt) {
     zRotation += vy * ((float)textureSize / 180.0f);
     
     // Keep ball within bounds
-    if (x > 720) {
-        x = 720.0f;
+    if (x > 840) {
+        x = 840.0f;
     }
     if (x < 0) {
         x = 0.0f;
     }
-    if (y > 480) {
-        y = 480.0f;
+    if (y > 560) {
+        y = 560.0f;
     }
     if (y < 0) {
         y = 0.0f;

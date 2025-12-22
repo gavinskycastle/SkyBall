@@ -12,7 +12,7 @@ class Ball {
         void update(float relDt);
         void close();
     private:
-        const float friction = 0.15f;
+        const float friction = 0.4f;
         
         // rendering
         Model soccerBallModel;
@@ -21,7 +21,7 @@ class Ball {
         Camera3D camera = { 0 };
         RenderTexture2D renderTexture;
         Vector3 ballModelPosition = Vector3{0.0f, -6.0f, 0.0f};
-        int textureSize = 20;
+        int textureSize = 16;
         float xRotation = 0.0f;
         float zRotation = 0.0f;
         

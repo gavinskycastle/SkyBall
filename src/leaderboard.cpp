@@ -29,7 +29,7 @@ void selectLeaderboardMode(GameState mode) {
     std::string scoreFileLocation_S = scoreFileLocation;
     switch (mode) {
         case PLAY:
-            scoreFileLocation_S += "_classic";
+            scoreFileLocation_S += "";
             break;
         default:
             break;

@@ -23,7 +23,7 @@ int main(void)
 #if defined(PLATFORM_WEB)
     InitWindow(getBrowserWindowWidth(), getBrowserWindowHeight(), PROJECT_NAME);
 #else
-    InitWindow(720, 480, "ScoreJam37");
+    InitWindow(840, 560, "ScoreJam37");
     Image windowIcon;
     if (std::filesystem::exists("../assets") == false) {
         // windowIcon = LoadImage("assets/icon.png");
