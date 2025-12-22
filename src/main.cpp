@@ -10,6 +10,7 @@
 #include "leaderboard.hpp"
 #include "ball.hpp"
 #include <raymath.h>
+#include "player.hpp"
 
 // Window setup
 int screenWidth = 720; // Sprites are 2x scaled, so this will be 360x240
@@ -34,6 +35,7 @@ GameSettings gameSettings;
 
 RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
+Player player = Player();
 
 Ball testBall = Ball(screenWidth/2, screenHeight/2);
 
@@ -215,6 +217,9 @@ bool app_loop() {
         ClearBackground(Color{145, 255, 81, 255});
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
         
+        //Player Moving (Walking and Running)
+        player.playerMovement(relDt);
+
         // Only 3D rendered object
         testBall.update(relDt);
         
