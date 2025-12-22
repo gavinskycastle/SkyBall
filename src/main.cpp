@@ -9,6 +9,7 @@
 #include "main.hpp"
 #include "leaderboard.hpp"
 #include <raymath.h>
+#include "player.hpp"
 
 // Window setup
 int screenWidth = 720; // Sprites are 2x scaled, so this will be 360x240
@@ -35,6 +36,7 @@ GameSettings gameSettings;
 
 RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
+Footballer player = Footballer();
 
 void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
@@ -178,11 +180,15 @@ void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &render
     // Draw
     BeginTextureMode(renderTexture);
         ClearBackground(Color{145, 255, 81, 255});
+        
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
+        // Draw Player
+        DrawRectangle(10, 10, 8, 8, CLITERAL(Color){255, 0, 0, 255});
         
         // 3D rendering
         BeginMode3D(gameInstance.camera);
-            DrawModelEx(soccerBallModel, {1.0f, 0.0f, 0.0f}, -90.0f, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
+            //DrawModelEx(soccerBallModel, {1.0f, 0.0f, 0.0f}, -90.0f, Vector3{0.2f, 0.2f, 0.2f}, WHITE);
+
         EndMode3D();
         
         // 2D rendering

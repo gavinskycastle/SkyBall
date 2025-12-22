@@ -4,4 +4,10 @@
 
 using namespace std;
 
-Footballer::
+    Footballer player;
+void playerMovement() {
+    while (!WindowShouldClose()) {
+        player.DrawRectangle(player.x, player.y, player.length, player.width, RED);
+        player.moveRectangle(player);
+    }
+}

@@ -6,7 +6,7 @@
 using namespace std;
 
 //Variables
-int distance = 1;
+
 float delta = GetFrameTime();
 //Enums
 enum PLAYER_STATE {
@@ -16,33 +16,34 @@ enum PLAYER_STATE {
 };
 
 //Prototype Functions
+int DrawRectangle();
 void moveRectangle();
 
 //Main Class
 class Footballer {
-    private:
+    public:
         int x = 10;
         int y = 10;
         int length = 8;
         int width = 8;
+        int moveSpeed = 1;
 
-    public:
-        DrawRectangle(int x, int y, int length, int width, Color GRAY);
-        moveRectangle();
+        int DrawRectangle(int x, int y, int length, int width, Color color);
+        void moveRectangle();
 };
 
 
-void moveRectangle() {
+void moveRectangle(Footballer &player) {
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
-        Footballer.y += distance * delta;
+        player.y += player.moveSpeed * delta;
     }
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-        Footballer.x -= distance * delta;
+        player.x -= player.moveSpeed * delta;
     }
     if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
-        Footballer.y -= distance * delta;
+        player.y -= player.moveSpeed * delta;
     }
     if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-        Footballer.x += distance * delta;
+        player.x += player.moveSpeed * delta;
     }
 }
