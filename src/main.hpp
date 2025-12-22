@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include "../libs/raylib/src/raylib.h"
+#include "player.hpp"
+#include "ball.hpp"
 
 #ifndef APP_HPP
 #define APP_HPP
@@ -19,11 +21,12 @@ struct GameSettings {
 };
 
 struct GameInstanceState {
-    int player;
     // Game instance state setup
     GameState gameState = MAIN_MENU;
     GameState gameOverReturnState = PLAY;
     int score = 0;
+    Player player = Player();
+    Ball* ball = new Ball(GetScreenWidth()/2, GetScreenHeight()/2);
 };
 
 // Load asset and initialized stuffs here

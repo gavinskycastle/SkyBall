@@ -6,6 +6,8 @@
 Ball::Ball(int x, int y) {
     this->x = x;
     this->y = y;
+    
+    static Model soccerBallModel;
 }
 
 void Ball::init(std::string assetPathPrefix) {

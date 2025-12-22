@@ -8,9 +8,7 @@
 
 #include "main.hpp"
 #include "leaderboard.hpp"
-#include "ball.hpp"
 #include <raymath.h>
-#include "player.hpp"
 
 // Window setup
 int screenWidth = 840; // Sprites are 2x scaled, so this will be 420x280
@@ -38,11 +36,7 @@ int selectedLeaderboardIndex = 0;
 // Global game state setup
 GameSettings gameSettings;
 
-RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
-Player player = Player();
-
-Ball testBall = Ball(screenWidth/2, screenHeight/2);
 
 void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
@@ -51,6 +45,9 @@ void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color 
 
 void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
+    gameInstance.player = Player();
+    gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
+    gameInstance.ball->init(assetPathPrefix);
 }
 
 void loadLeaderboardData(std::vector<std::string> &leaderboardNames, std::vector<int> &leaderboardScores) {
@@ -173,20 +170,50 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
     }
 }
 
-void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &renderTexture, float relDt) {
-    // Draw
-    BeginTextureMode(renderTexture);
-        ClearBackground(BLANK);
-        
-        // 2D rendering
-        switch(gameInstance.gameState) {
-            case GAME_OVER: {DrawGameOver(gameInstance); break;}
-            case MAIN_MENU: {DrawMainMenu(gameInstance); break;}
-            case OPTIONS: {DrawOptions(gameInstance); break;}
-            case LEADER_BOARD: {DrawLeaderboard(gameInstance); break;}
-            default: {break;}
-        }
-    EndTextureMode();
+void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
+    ClearBackground(BLANK);
+    DrawTexture(backgroundTexture, 0, 0, WHITE);
+    DrawRectangle(fieldBounds.x, fieldBounds.y, fieldBounds.width, fieldBounds.height, grassGreen);
+    DrawRectangle(0, 178, 64, 200, grassGreen);
+    DrawRectangle(776, 178, 64, 200, grassGreen);
+    DrawTexture(fieldTexture, 0, 0, WHITE);
+    
+    //Player Moving (Walking and Running)
+    gameInstance.player.playerMovement(relDt, fieldBounds);
+
+    // Only 3D rendered object
+    std::vector<Player> players = {gameInstance.player};
+    gameInstance.ball->update(relDt, players);
+    
+    // Kick ball with arrow keys
+    if (IsKeyPressed(KEY_UP)) {
+        gameInstance.ball->kick(0.0f, -1.0f);
+    }
+    if (IsKeyPressed(KEY_DOWN)) {
+        gameInstance.ball->kick(0.0f, 1.0f);
+    }
+    if (IsKeyPressed(KEY_LEFT)) {
+        gameInstance.ball->kick(-1.0f, 0.0f);
+    }
+    if (IsKeyPressed(KEY_RIGHT)) {
+        gameInstance.ball->kick(1.0f, 0.0f);
+    }
+    
+    DrawTexture(goalTexture, 4, 182, WHITE);
+    DrawTexture(goalTexture, 772, 182, WHITE);
+    
+    if (IsKeyPressed(KEY_L)) {
+        gameInstance.gameState = GAME_OVER;
+    }
+    
+    // 2D rendering
+    switch(gameInstance.gameState) {
+        case GAME_OVER: {DrawGameOver(gameInstance); break;}
+        case MAIN_MENU: {DrawMainMenu(gameInstance); break;}
+        case OPTIONS: {DrawOptions(gameInstance); break;}
+        case LEADER_BOARD: {DrawLeaderboard(gameInstance); break;}
+        default: {break;}
+    }
 }
 
 Texture2D LoadTextureFromImage2x(std::string filename) {
@@ -202,60 +229,21 @@ void init_app() {
     
     InitAudioDevice();
     // coneFall = LoadSound((assetPathPrefix + "coneFall.ogg").c_str());
-
-    mainRenderTexture = LoadRenderTexture(screenWidth, screenHeight);
     
     ResetGame(mainGameInstance);
-    mainGameInstance.player = 1;
 
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
     goalTexture = LoadTextureFromImage2x("goal.png");
     backgroundTexture = LoadTextureFromImage2x("background.png");
     
     selectLeaderboardMode(PLAY);
-    
-    testBall.init(assetPathPrefix);
 }
 
 bool app_loop() {
     float relDt = GetFrameTime() * 60.0f; // Calculate delta time in relation to 60 frames per second
     
     BeginDrawing();
-        ClearBackground(BLANK);
-        DrawTexture(backgroundTexture, 0, 0, WHITE);
-        DrawRectangle(fieldBounds.x, fieldBounds.y, fieldBounds.width, fieldBounds.height, grassGreen);
-        DrawRectangle(0, 178, 64, 200, grassGreen);
-        DrawRectangle(776, 178, 64, 200, grassGreen);
-        DrawTexture(fieldTexture, 0, 0, WHITE);
-        
-        
-        //Player Moving (Walking and Running)
-        player.playerMovement(relDt, fieldBounds);
-
-        // Only 3D rendered object
-        std::vector<Player> players = {player};
-        testBall.update(relDt, players);
-        
-        // Kick ball with arrow keys
-        if (IsKeyPressed(KEY_UP)) {
-            testBall.kick(0.0f, -1.0f);
-        }
-        if (IsKeyPressed(KEY_DOWN)) {
-            testBall.kick(0.0f, 1.0f);
-        }
-        if (IsKeyPressed(KEY_LEFT)) {
-            testBall.kick(-1.0f, 0.0f);
-        }
-        if (IsKeyPressed(KEY_RIGHT)) {
-            testBall.kick(1.0f, 0.0f);
-        }
-        
-        DrawTexture(goalTexture, 4, 182, WHITE);
-        DrawTexture(goalTexture, 772, 182, WHITE);
-        
-        // Draw UI/holdovers from Cone Stacker
-        UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);
-        DrawTextureRec(mainRenderTexture.texture, Rectangle{0, 0, (float)mainRenderTexture.texture.width, (float)-mainRenderTexture.texture.height}, Vector2{0, 0}, WHITE);
+        UpdateGameInstance(mainGameInstance, relDt);
     EndDrawing();
     
     return !windowShouldClose;
