@@ -217,7 +217,7 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     bool stateChanged = gameInstance.ball->update(relDt, players, fieldBounds, goalBoundA, goalBoundB);
     if (stateChanged) {
         if (gameInstance.ball->ballState == SCORED) {
-            gameInstance.score = static_cast<int>(50.0f + pow(1.17, ((gameInstance.ball->velocityMultiplier - 0.5f) * 50 + 5))); //score is y=50+1.17^(50x+5) where x is number of kicks
+            gameInstance.score += static_cast<int>(50.0f + pow(1.17, ((gameInstance.ball->velocityMultiplier - 0.5f) * 20 + 5))); //score is y=50+1.17^(50x+5) where x is number of kicks
             IterateToNextRound(gameInstance);
         } else if (gameInstance.ball->ballState == FALLEN) {
             IterateToNextRound(gameInstance);
@@ -244,11 +244,6 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     
     DrawTexture(goalTexture, 4, 182, WHITE);
     DrawTexture(goalTexture, 772, 182, WHITE);
-    
-    if (IsKeyPressed(KEY_L)) {
-        gameInstance.gameState = GAME_OVER;
-    }
-    
     
     // 2D rendering
     switch(gameInstance.gameState) {
