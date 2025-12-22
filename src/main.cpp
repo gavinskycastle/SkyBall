@@ -119,23 +119,37 @@ void DrawMainMenu(GameInstanceState &gameInstance) {
 
 void DrawOptions(GameInstanceState &gameInstance) {
     GuiSetStyle(DEFAULT, TEXT_SIZE, 16);
-                
-    GuiGroupBox(Rectangle{37, 50, 640, 400}, "Options");
+    float optsW = 640.0f, optsH = 400.0f;
+    float optsX = (screenWidth - optsW) / 2.0f;
+    float optsY = (screenHeight - optsH) / 2.0f;
+    GuiGroupBox(Rectangle{optsX, optsY, optsW, optsH}, "Options");
+
     
-    GuiLabel(Rectangle {207, 170, 100, 25}, "SFX Volume");
-    GuiSliderBar(Rectangle{302, 175, 120, 16}, NULL, (std::to_string((int)(gameSettings.sfxVolume*100)) + "%").c_str(), &gameSettings.sfxVolume, 0, 1);
+    GuiLabel(Rectangle {optsX + 170.0f, optsY + 120.0f, 100, 25}, "SFX Volume");
+GuiSliderBar(Rectangle{optsX + 265.0f, optsY + 125.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.sfxVolume*100)) + "%").c_str(), &gameSettings.sfxVolume, 0, 1);
     
     // SetSoundVolume(coneDrop, gameSettings.sfxVolume);
     
-    if (GuiButton(Rectangle{282, 410, 150, 25}, "Back to Main Menu") == 1) {
+    if (GuiButton(Rectangle{optsX + 245.0f, optsY + 360.0f, 150, 25}, "Back to Main Menu") == 1) {
         gameInstance.gameState = MAIN_MENU;
     }
 }
 
 void DrawLeaderboard(GameInstanceState &gameInstance) {
     GuiSetStyle(DEFAULT, TEXT_SIZE, 16);
+    float boxW = 640.0f, boxH = 430.0f;
+    float boxX = (screenWidth - boxW) / 2.0f;
+    float boxY = (screenHeight - boxH) / 2.0f;
     
-    GuiGroupBox(Rectangle{37, 20, 640, 430}, "Leaderboard");
+    GuiGroupBox(Rectangle{boxX, boxY, boxW, boxH}, "Leaderboard");
+
+    //inner offsets (previous coordinates were relative to left = 37, top = 20)
+    float offNameX = 55.0f;    // 92 - 37
+    float offLine1X = 50.0f;   // 87 - 37
+    float offLine2X = 503.0f;  // 540 - 37
+    float offScoreX = 508.0f;  // 545 - 37
+    float offTopY = 45.0f;     // 65 - 20
+    float offRowStartY = 80.0f; // 100 - 20
     
     //selectedLeaderboardIndex = static_cast<int>(selectedLeaderboardMode);
     //GuiToggleGroup(Rectangle{55, 35, 150, 25}, "Classic", &selectedLeaderboardIndex);
@@ -145,29 +159,29 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
         loadLeaderboardData(leaderboardNames, leaderboardScores);
     }
     
-    GuiLabel(Rectangle{92, 65, 120, 25}, "Name");
+    GuiLabel(Rectangle{boxX + offNameX, boxY + offTopY, 120, 25}, "Name");
     
-    DrawLine(87, 65, 87, 400, BLACK);
-    DrawLine(540, 65, 540, 400, BLACK);
+    DrawLine(boxX + offLine1X, boxY + offTopY, boxX + offLine1X, boxY + (400 - 20), BLACK);
+    DrawLine(boxX + offLine2X, boxY + offTopY, boxX + offLine2X, boxY + (400 - 20), BLACK);
     
-    GuiLabel(Rectangle{545, 65, 120, 25}, "Score");
+    GuiLabel(Rectangle{boxX + offScoreX, boxY + offTopY, 120, 25}, "Score");
     
-    DrawLine(62, 95, 640, 95, BLACK);
+    DrawLine(boxX + 25.0f, boxY + (95 - 20), boxX + (640 - 37) + 37.0f, boxY + (95 - 20), BLACK); // horizontal guideline
     
-    float yValue = 100.0f;
-    for (std::string name : leaderboardNames) {
-        GuiLabel(Rectangle{92, yValue, 150, 25}, name.c_str());
-        yValue += 30.0f;
+    float yValue = boxY + offRowStartY;
+for (const std::string &name : leaderboardNames) {
+    GuiLabel(Rectangle{boxX + offNameX, yValue, 150, 25}, name.c_str());
+    yValue += 30.0f;
     }
-    yValue = 100.0f;
+    yValue = boxY + offRowStartY;
     for (int score : leaderboardScores) {
-        GuiLabel(Rectangle{545, yValue, 150, 25}, std::to_string(score).c_str());
+        GuiLabel(Rectangle{boxX + offScoreX, yValue, 150, 25}, std::to_string(score).c_str());
         yValue += 30.0f;
     }
     
-    if (GuiButton(Rectangle{282, 410, 150, 25}, "Back to Main Menu") == 1) {
-        gameInstance.gameState = MAIN_MENU;
-    }
+    if (GuiButton(Rectangle{boxX + 245.0f, boxY + 390.0f, 150, 25}, "Back to Main Menu") == 1) {
+    gameInstance.gameState = MAIN_MENU;
+}
 }
 
 void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
