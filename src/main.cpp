@@ -21,11 +21,15 @@ std::string assetPathPrefix = "../assets/";
 Texture2D fieldTexture;
 Texture2D goalTexture;
 Texture2D backgroundTexture;
+Texture2D logoTexture;
 
 Color grassGreen = Color{89, 175, 35, 255};
 Rectangle fieldBounds = Rectangle{54, 34, 732, 492};
 Rectangle goalBoundA = Rectangle{0, 178, 64, 200};
 Rectangle goalBoundB = Rectangle{776, 178, 64, 200};
+
+Music backgroundMusic;
+double timeOfLastRoundEnd = 0.0;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -49,7 +53,7 @@ void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.score = 0;
     gameInstance.round = 1;
     gameInstance.player = Player();
-    gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
+    gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2, gameInstance.round);
     gameInstance.ball->init(assetPathPrefix);
 }
 
@@ -96,7 +100,7 @@ void DrawGameOver(GameInstanceState &gameInstance) {
 }
 
 void DrawMainMenu(GameInstanceState &gameInstance) {
-    DrawTextCentered("SkyBall", screenWidth/2, screenHeight/2-125, 50, BLACK);
+    DrawTexture(logoTexture, screenWidth/2 - logoTexture.width/2, screenHeight/2 - 150, WHITE);
     
     GuiSetStyle(DEFAULT, TEXT_SIZE, 25);
     if (GuiButton(Rectangle {static_cast<float>(screenWidth/2-100), screenHeight/2-50, 200, 50}, "Play") == 1) {
@@ -129,9 +133,15 @@ void DrawOptions(GameInstanceState &gameInstance) {
 
     
     GuiLabel(Rectangle {optsX + 170.0f, optsY + 120.0f, 100, 25}, "SFX Volume");
-GuiSliderBar(Rectangle{optsX + 265.0f, optsY + 125.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.sfxVolume*100)) + "%").c_str(), &gameSettings.sfxVolume, 0, 1);
+    GuiSliderBar(Rectangle{optsX + 265.0f, optsY + 125.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.sfxVolume*100)) + "%").c_str(), &gameSettings.sfxVolume, 0, 1);
     
-    // SetSoundVolume(coneDrop, gameSettings.sfxVolume);
+    GuiLabel(Rectangle {optsX + 170.0f, optsY + 150.0f, 105, 25}, "Music Volume");
+    GuiSliderBar(Rectangle{optsX + 275.0f, optsY + 155.0f, 120, 16}, NULL, (std::to_string((int)(gameSettings.musicVolume*100)) + "%").c_str(), &gameSettings.musicVolume, 0, 1);
+    
+    // Update sound volumes
+    //SetSoundVolume(, gameSettings.sfxVolume);
+    
+    SetMusicVolume(backgroundMusic, gameSettings.musicVolume * 0.2);
     
     if (GuiButton(Rectangle{optsX + 245.0f, optsY + 360.0f, 150, 25}, "Back to Main Menu") == 1) {
         gameInstance.gameState = MAIN_MENU;
@@ -198,12 +208,14 @@ void IterateToNextRound(GameInstanceState &gameInstance) {
         // Reset player and ball
         gameInstance.player = Player();
         delete gameInstance.ball;
-        gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2);
+        gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2, gameInstance.round);
         gameInstance.ball->init(assetPathPrefix);
     }
 }
 
 void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
+    UpdateMusicStream(backgroundMusic);
+    
     ClearBackground(BLANK);
     DrawTexture(backgroundTexture, 0, 0, WHITE);
     DrawRectangleRec(fieldBounds, grassGreen);
@@ -212,7 +224,7 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     DrawTexture(fieldTexture, 0, 0, WHITE);
     
     //Player Moving (Walking and Running)
-    gameInstance.player.playerMovement(relDt, fieldBounds);
+    if (gameInstance.gameState == PLAY) { gameInstance.player.playerMovement(relDt, fieldBounds); }
 
     // Only 3D rendered object
     std::vector<Player> players = {gameInstance.player};
@@ -220,11 +232,17 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     if (stateChanged) {
         if (gameInstance.ball->ballState == SCORED) {
             gameInstance.score += static_cast<int>(50.0f + pow(1.17, ((gameInstance.ball->velocityMultiplier - 0.5f) * 20 + 5))); //score is y=50+1.17^(50x+5) where x is number of kicks
-            IterateToNextRound(gameInstance);
+            timeOfLastRoundEnd = GetTime();
         } else if (gameInstance.ball->ballState == FALLEN) {
-            IterateToNextRound(gameInstance);
+            timeOfLastRoundEnd = GetTime();
         }
     }
+    
+    if (timeOfLastRoundEnd != 0.0 && GetTime() - timeOfLastRoundEnd > 1.5) {
+        timeOfLastRoundEnd = 0.0;
+        IterateToNextRound(gameInstance);
+    }
+    
     // // Kick ball with arrow keys
     // if (IsKeyPressed(KEY_UP)) {
     //     gameInstance.ball->kick(0.0f, -1.0f);
@@ -239,10 +257,12 @@ void UpdateGameInstance(GameInstanceState &gameInstance, float relDt) {
     //     gameInstance.ball->kick(1.0f, 0.0f);
     // }
     
-    DrawRectangleLines(screenWidth/2-100, 0, 200, 60, BLACK);
-    DrawRectangleLines(screenWidth/2-100, 59, 200, 20, BLACK);
-    DrawTextCentered(std::to_string(gameInstance.score).c_str(), screenWidth/2, 10, 50, BLACK);
-    DrawTextCentered(("Round " + std::to_string(gameInstance.round)).c_str(), screenWidth/2, 62, 15, BLACK);
+    if (gameInstance.gameState == PLAY) { 
+        DrawRectangleLines(screenWidth/2-100, 0, 200, 60, BLACK);
+        DrawRectangleLines(screenWidth/2-100, 59, 200, 20, BLACK);
+        DrawTextCentered(std::to_string(gameInstance.score).c_str(), screenWidth/2, 10, 50, BLACK);
+        DrawTextCentered(("Round " + std::to_string(gameInstance.round)).c_str(), screenWidth/2, 62, 15, BLACK);
+    }
     
     DrawTexture(goalTexture, 4, 182, WHITE);
     DrawTexture(goalTexture, 772, 182, WHITE);
@@ -276,6 +296,11 @@ void init_app() {
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
     goalTexture = LoadTextureFromImage2x("goal.png");
     backgroundTexture = LoadTextureFromImage2x("background.png");
+    logoTexture = LoadTextureFromImage2x("logo.png");
+    
+    backgroundMusic = LoadMusicStream((assetPathPrefix + "Cruising_for_Goblins.mp3").c_str());
+    PlayMusicStream(backgroundMusic);
+    SetMusicVolume(backgroundMusic, 0.2f);
     
     selectLeaderboardMode(PLAY);
 }
@@ -291,6 +316,6 @@ bool app_loop() {
 }
 
 void deinit_app() {
-    // UnloadSound(coneFall);
+    UnloadMusicStream(backgroundMusic);
     CloseAudioDevice();
 }

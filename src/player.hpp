@@ -16,8 +16,8 @@ enum PLAYER_STATE {
 //Main Class
 class Player {
     public:
-        float x = 150.0f;
-        float y = 150.0f;
+        float x = 250.0f;
+        float y = GetScreenHeight() / 2.0f - 17.5f; // Centered vertically
         // width = horizontal size, length = vertical size
         float width = 30.0f;
         float length = 35.0f;

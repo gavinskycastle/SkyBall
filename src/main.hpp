@@ -17,7 +17,7 @@ enum GameState {
 
 struct GameSettings {
     float sfxVolume = 1.0f;
-    bool enableTouchscreenControls = false;
+    float musicVolume = 1.0f;
 };
 
 struct GameInstanceState {
