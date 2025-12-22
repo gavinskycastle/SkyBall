@@ -26,9 +26,9 @@ int main(void)
     InitWindow(840, 560, "SkyBall");
     Image windowIcon;
     if (std::filesystem::exists("../assets") == false) {
-        // windowIcon = LoadImage("assets/icon.png");
+       windowIcon = LoadImage("assets/icon.png");
     } else {
-        // windowIcon = LoadImage("../assets/icon.png");
+        windowIcon = LoadImage("../assets/icon.png");
     }
     SetWindowIcon(windowIcon);
 #endif
