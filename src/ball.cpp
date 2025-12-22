@@ -12,14 +12,8 @@ Ball::Ball(int x, int y, int round) {
     static Model soccerBallModel;
 }
 
-void Ball::init(std::string assetPathPrefix) {
-    soccerBallModel = LoadModel((assetPathPrefix + "soccerBall/soccerBall.obj").c_str());
-    BoundingBox soccerBallBox = GetModelBoundingBox(soccerBallModel);
-    soccerBallCenter = Vector3{
-        (soccerBallBox.min.x + ((soccerBallBox.max.x - soccerBallBox.min.x) / 2.0f))+ballModelPosition.x,
-        (soccerBallBox.min.y + ((soccerBallBox.max.y - soccerBallBox.min.y) / 2.0f))+ballModelPosition.y,
-        (soccerBallBox.min.z + ((soccerBallBox.max.z - soccerBallBox.min.z) / 2.0f))+ballModelPosition.z
-    };
+void Ball::init(BallAssets* ballAssets) {
+    this->assets = ballAssets;
     
     camera.position = Vector3{ 18.0f, 0.0f, 0.0f }; // Camera position
     camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
@@ -42,8 +36,7 @@ void Ball::kick(float aFx, float aFy) {
         velocityMultiplier += 0.05f;
         //std::cout << "Velocity Multiplier: " << velocityMultiplier << std::endl;
         // Play Sound Effect
-        Sound ballKickSound = LoadSound("assets/kick.ogg");
-        PlaySound(ballKickSound);
+        PlaySound(assets->ballKickSound);
     }
 }
 
@@ -94,14 +87,12 @@ bool Ball::update(float relDt, std::vector<Player>& players, Rectangle fieldBoun
         if (CheckCollisionRecs(ballRect, goalBoundA) || CheckCollisionRecs(ballRect, goalBoundB)) {
             ballState = SCORED;
             // Play Sound Effect
-            Sound goalSound = LoadSound("assets/win.ogg");
-            PlaySound(goalSound);
+            PlaySound(assets->goalSound);
             stateChanged = true;
         } else if (!CheckCollisionRecs(ballRect, fieldBounds)) {
             ballState = FALLEN;
             // Play Sound Effect
-            Sound fallSound = LoadSound("assets/red.wav");
-            PlaySound(fallSound);
+            PlaySound(assets->fallSound);
             stateChanged = true;
         }
     } else if (ballState == SCORED) {
@@ -166,7 +157,7 @@ bool Ball::update(float relDt, std::vector<Player>& players, Rectangle fieldBoun
             rlPushMatrix();
 
             // Translate to the origin relative to the soccer ball's center
-            rlTranslatef(soccerBallCenter.x, soccerBallCenter.y, soccerBallCenter.z);
+            rlTranslatef(assets->soccerBallCenter.x, assets->soccerBallCenter.y, assets->soccerBallCenter.z);
 
             // Apply rotation around the soccer ball's center
             rlRotatef(xRotation, 0.0f, 1.0f, 0.0f);
@@ -174,10 +165,10 @@ bool Ball::update(float relDt, std::vector<Player>& players, Rectangle fieldBoun
             rlRotatef(zRotation, 0.0f, 0.0f, 1.0f);
 
             // Translate back to the original position
-            rlTranslatef(-soccerBallCenter.x, -soccerBallCenter.y, -soccerBallCenter.z);
+            rlTranslatef(-assets->soccerBallCenter.x, -assets->soccerBallCenter.y, -assets->soccerBallCenter.z);
             
             // Draw the soccer ball model
-            DrawModel(soccerBallModel, ballModelPosition, 1.0f, WHITE);
+            DrawModel(assets->soccerBallModel, ballModelPosition, 1.0f, WHITE);
             
             rlPopMatrix();
         EndMode3D();

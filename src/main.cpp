@@ -42,6 +42,8 @@ int selectedLeaderboardIndex = 0;
 // Global game state setup
 GameSettings gameSettings;
 
+BallAssets ballAssets;
+
 GameInstanceState mainGameInstance;
 
 void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color color) {
@@ -54,7 +56,7 @@ void ResetGame(GameInstanceState &gameInstance) {
     gameInstance.round = 1;
     gameInstance.player = Player();
     gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2, gameInstance.round);
-    gameInstance.ball->init(assetPathPrefix);
+    gameInstance.ball->init(&ballAssets);
 }
 
 void loadLeaderboardData(std::vector<std::string> &leaderboardNames, std::vector<int> &leaderboardScores) {
@@ -209,7 +211,7 @@ void IterateToNextRound(GameInstanceState &gameInstance) {
         gameInstance.player = Player();
         delete gameInstance.ball;
         gameInstance.ball = new Ball(screenWidth / 2, screenHeight / 2, gameInstance.round);
-        gameInstance.ball->init(assetPathPrefix);
+        gameInstance.ball->init(&ballAssets);
     }
 }
 
@@ -290,6 +292,17 @@ void init_app() {
     
     InitAudioDevice();
     // coneFall = LoadSound((assetPathPrefix + "coneFall.ogg").c_str());
+    
+    ballAssets.soccerBallModel = LoadModel((assetPathPrefix + "soccerBall/soccerBall.obj").c_str());
+    BoundingBox soccerBallBox = GetModelBoundingBox(ballAssets.soccerBallModel);
+    ballAssets.soccerBallCenter = Vector3{
+        (soccerBallBox.min.x + ((soccerBallBox.max.x - soccerBallBox.min.x) / 2.0f)),
+        (soccerBallBox.min.y + ((soccerBallBox.max.y - soccerBallBox.min.y) / 2.0f))-6.0f,
+        (soccerBallBox.min.z + ((soccerBallBox.max.z - soccerBallBox.min.z) / 2.0f))
+    };
+    ballAssets.ballKickSound = LoadSound((assetPathPrefix + "kick.ogg").c_str());
+    ballAssets.goalSound = LoadSound((assetPathPrefix + "win.ogg").c_str());
+    ballAssets.fallSound = LoadSound((assetPathPrefix + "red.wav").c_str());
     
     ResetGame(mainGameInstance);
 

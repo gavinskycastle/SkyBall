@@ -12,10 +12,18 @@ enum BallState {
     FALLEN
 };
 
+struct BallAssets {
+    Model soccerBallModel;
+    Vector3 soccerBallCenter;
+    Sound ballKickSound;
+    Sound goalSound;
+    Sound fallSound;
+};
+
 class Ball {
     public:
         Ball(int x, int y, int round = 1);
-        void init(std::string assetPathPrefix);
+        void init(BallAssets* ballAssets);
         void kick(float Fx, float Fy);
         void bounceBack(float Fx, float Fy);
         bool update(float relDt, std::vector<Player>& players, Rectangle fieldBounds, Rectangle goalBoundA, Rectangle goalBoundB);
@@ -27,8 +35,7 @@ class Ball {
         const float friction = 0.995f;
         
         // rendering
-        Model soccerBallModel;
-        Vector3 soccerBallCenter;
+        BallAssets* assets;
         
         Camera3D camera = { 0 };
         RenderTexture2D renderTexture;
