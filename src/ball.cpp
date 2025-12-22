@@ -27,11 +27,25 @@ void Ball::init(std::string assetPathPrefix) {
 }
 
 void Ball::kick(float aFx, float aFy) {
-    Fx += aFx;
-    Fy += aFy;
+    static float lastKickTime = 0.0f; // Tracks the time of the last kick
+    float currentTime = GetTime();   // Get the current time
+
+    if (currentTime - lastKickTime >= 0.25f) { // Check if 0.25 seconds have passed
+        Fx += aFx;
+        Fy += aFy;
+        lastKickTime = currentTime; // Update the last kick time
+    }
 }
 
-void Ball::update(float relDt) {
+void Ball::update(float relDt, std::vector<Player>& players) {
+    Rectangle ballRect = Rectangle{x-textureSize, y-textureSize, (float)(textureSize * 2), (float)(textureSize * 2)};
+    
+    for (Player& player : players) {
+        Rectangle playerRect = Rectangle{player.x, player.y, player.width, player.length};
+        if (CheckCollisionRecs(ballRect, playerRect)) {
+            kick((vx - (player.x + player.width / 2.0f - x)) * 0.15f, (vy - (player.y + player.length / 2.0f - y)) * 0.15f);
+        }
+    }
     // Update ball physics
     vx += Fx * relDt;
     vy += Fy * relDt;
@@ -40,22 +54,28 @@ void Ball::update(float relDt) {
     y += vy * relDt * velocityMultiplier;
     
     // Friction
-    vx *= friction;
-    vy *= friction;
-    
+    Fx *= friction;
+    Fy *= friction;
+    if (std::abs(Fx) < 0.001f) {
+        vx *= friction;
+    }
+    if (std::abs(Fy) < 0.001f) {
+        vy *= friction;
+    }
+
     // Rotation
     xRotation += vx * ((float)textureSize / 180.0f);
     zRotation += vy * ((float)textureSize / 180.0f);
     
     // Keep ball within bounds
-    if (x > 840) {
-        x = 840.0f;
+    if (x > GetScreenWidth()) {
+        x = GetScreenWidth();
     }
     if (x < 0) {
         x = 0.0f;
     }
-    if (y > 560) {
-        y = 560.0f;
+    if (y > GetScreenHeight()) {
+        y = GetScreenHeight();
     }
     if (y < 0) {
         y = 0.0f;
@@ -87,5 +107,17 @@ void Ball::update(float relDt) {
         EndMode3D();
     EndTextureMode();
     
-    DrawTexturePro(renderTexture.texture, Rectangle{0, 0, (float)textureSize, (float)textureSize}, Rectangle{x-textureSize, y-textureSize, (float)(textureSize * 2), (float)(textureSize * 2)}, Vector2{0, 0}, 0.0f, WHITE);
+    DrawTexturePro(renderTexture.texture, Rectangle{0, 0, (float)textureSize, (float)textureSize}, ballRect, Vector2{0, 0}, 0.0f, WHITE);
+    
+    // Write x velocity to screen for debugging
+    DrawText(("X Velocity: " + std::to_string(vx)).c_str(), 10, 10, 20, BLACK);
+    
+    // Write y velocity to screen for debugging
+    DrawText(("Y Velocity: " + std::to_string(vy)).c_str(), 10, 30, 20, BLACK);
+    
+    // Write x force to screen for debugging
+    DrawText(("X Force: " + std::to_string(Fx)).c_str(), 10, 50, 20, BLACK);
+    
+    // Write y force to screen for debugging
+    DrawText(("Y Force: " + std::to_string(Fy)).c_str(), 10, 70, 20, BLACK);
 }

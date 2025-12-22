@@ -21,6 +21,8 @@ bool windowShouldClose = false;
 std::string assetPathPrefix = "../assets/";
 
 Texture2D fieldTexture;
+Texture2D goalTexture1;
+Texture2D goalTexture2;
 
 // Leaderboard/name entry setup
 bool highScoreEditMode = false;
@@ -204,6 +206,8 @@ void init_app() {
     mainGameInstance.player = 1;
 
     fieldTexture = LoadTextureFromImage2x("field_layout.png");
+    goalTexture1 = LoadTextureFromImage2x("goal.png");
+    goalTexture2 = LoadTextureFromImage2x("goal.png");
     
     selectLeaderboardMode(PLAY);
     
@@ -216,25 +220,28 @@ bool app_loop() {
     BeginDrawing();
         ClearBackground(Color{89, 175, 35, 255});
         DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
+        DrawTexture(goalTexture1, 4, 182, WHITE);
+        DrawTexture(goalTexture2, 772, 182, WHITE);
         
         //Player Moving (Walking and Running)
         player.playerMovement(relDt);
 
         // Only 3D rendered object
-        testBall.update(relDt);
+        std::vector<Player> players = {player};
+        testBall.update(relDt, players);
         
         // Kick ball with arrow keys
         if (IsKeyPressed(KEY_UP)) {
-            testBall.kick(0.0f, -50.0f);
+            testBall.kick(0.0f, -1.0f);
         }
         if (IsKeyPressed(KEY_DOWN)) {
-            testBall.kick(0.0f, 50.0f);
+            testBall.kick(0.0f, 1.0f);
         }
         if (IsKeyPressed(KEY_LEFT)) {
-            testBall.kick(-50.0f, 0.0f);
+            testBall.kick(-1.0f, 0.0f);
         }
         if (IsKeyPressed(KEY_RIGHT)) {
-            testBall.kick(50.0f, 0.0f);
+            testBall.kick(1.0f, 0.0f);
         }
         
         // Draw UI/holdovers from Cone Stacker

@@ -3,16 +3,18 @@
 
 #include "../libs/raylib/src/raylib.h"
 #include <string>
+#include <vector>
+#include "player.hpp"
 
 class Ball {
     public:
         Ball(int x, int y);
         void init(std::string assetPathPrefix);
         void kick(float Fx, float Fy);
-        void update(float relDt);
+        void update(float relDt, std::vector<Player>& players);
         void close();
     private:
-        const float friction = 0.4f;
+        const float friction = 0.995f;
         
         // rendering
         Model soccerBallModel;
