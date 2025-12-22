@@ -26,12 +26,40 @@ void Ball::init(std::string assetPathPrefix) {
     renderTexture = LoadRenderTexture(textureSize, textureSize);
 }
 
-RenderTexture2D Ball::update(float relDt) {
-    // static float rotationAngle = 0.0f;
-    // GuiSliderBar(Rectangle{170, 10, 200, 20}, NULL, NULL, &rotationAngle, -180.0f, 180.0f);
-    // GuiLabel(Rectangle{10, 10, 250, 15}, ("Angle " + std::to_string(rotationAngle)).c_str());
+void Ball::kick(float aFx, float aFy) {
+    Fx += aFx;
+    Fy += aFy;
+}
+
+void Ball::update(float relDt) {
+    // Update ball physics
+    vx += Fx * relDt;
+    vy += Fy * relDt;
     
-    xRotation += 2.0 * relDt;
+    x += vx * relDt * velocityMultiplier;
+    y += vy * relDt * velocityMultiplier;
+    
+    // Friction
+    vx *= friction;
+    vy *= friction;
+    
+    // Rotation
+    xRotation += vx * ((float)textureSize / 180.0f);
+    zRotation += vy * ((float)textureSize / 180.0f);
+    
+    // Keep ball within bounds
+    if (x > 720) {
+        x = 720.0f;
+    }
+    if (x < 0) {
+        x = 0.0f;
+    }
+    if (y > 480) {
+        y = 480.0f;
+    }
+    if (y < 0) {
+        y = 0.0f;
+    }
     
     // 3D rendering
     UpdateCamera(&camera, CAMERA_CUSTOM);
@@ -45,7 +73,9 @@ RenderTexture2D Ball::update(float relDt) {
             rlTranslatef(soccerBallCenter.x, soccerBallCenter.y, soccerBallCenter.z);
 
             // Apply rotation around the soccer ball's center
-            rlRotatef(xRotation, 1.0f, 0.0f, 0.0f);
+            rlRotatef(xRotation, 0.0f, 1.0f, 0.0f);
+            
+            rlRotatef(zRotation, 0.0f, 0.0f, 1.0f);
 
             // Translate back to the original position
             rlTranslatef(-soccerBallCenter.x, -soccerBallCenter.y, -soccerBallCenter.z);
@@ -57,5 +87,5 @@ RenderTexture2D Ball::update(float relDt) {
         EndMode3D();
     EndTextureMode();
     
-    return renderTexture;
+    DrawTexturePro(renderTexture.texture, Rectangle{0, 0, (float)textureSize, (float)textureSize}, Rectangle{x-textureSize, y-textureSize, (float)(textureSize * 2), (float)(textureSize * 2)}, Vector2{0, 0}, 0.0f, WHITE);
 }

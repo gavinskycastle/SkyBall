@@ -35,7 +35,7 @@ GameSettings gameSettings;
 RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
 
-Ball testBall = Ball(0, 0);
+Ball testBall = Ball(screenWidth/2, screenHeight/2);
 
 void DrawTextCentered(const char* text, int posX, int posY, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
@@ -169,8 +169,7 @@ void DrawLeaderboard(GameInstanceState &gameInstance) {
 void UpdateGameInstance(GameInstanceState &gameInstance, RenderTexture2D &renderTexture, float relDt) {
     // Draw
     BeginTextureMode(renderTexture);
-        ClearBackground(Color{145, 255, 81, 255});
-        DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
+        ClearBackground(BLANK);
         
         // 2D rendering
         switch(gameInstance.gameState) {
@@ -213,13 +212,29 @@ bool app_loop() {
     float relDt = GetFrameTime() * 60.0f; // Calculate delta time in relation to 60 frames per second
     
     BeginDrawing();
-        ClearBackground(BLACK);
-            UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);
-            DrawTextureRec(mainRenderTexture.texture, Rectangle{0, 0, (float)mainRenderTexture.texture.width, (float)-mainRenderTexture.texture.height}, Vector2{0, 0}, WHITE);
-            
-            RenderTexture2D ballTexture = testBall.update(relDt);
-            DrawTexturePro(ballTexture.texture, Rectangle{0, 0, (float)ballTexture.texture.width, (float)ballTexture.texture.height}, Rectangle{0, 0, (float)ballTexture.texture.width * 2, (float)ballTexture.texture.height * 2}, Vector2{0, 0}, 0.0f, WHITE);
-            DrawRectangleLines(0, 0, ballTexture.texture.width * 2, ballTexture.texture.height * 2, RED);
+        ClearBackground(Color{145, 255, 81, 255});
+        DrawTexture(fieldTexture, 0, 0, Color{255,255,255,255});
+        
+        // Only 3D rendered object
+        testBall.update(relDt);
+        
+        // Kick ball with arrow keys
+        if (IsKeyPressed(KEY_UP)) {
+            testBall.kick(0.0f, -50.0f);
+        }
+        if (IsKeyPressed(KEY_DOWN)) {
+            testBall.kick(0.0f, 50.0f);
+        }
+        if (IsKeyPressed(KEY_LEFT)) {
+            testBall.kick(-50.0f, 0.0f);
+        }
+        if (IsKeyPressed(KEY_RIGHT)) {
+            testBall.kick(50.0f, 0.0f);
+        }
+        
+        // Draw UI/holdovers from Cone Stacker
+        UpdateGameInstance(mainGameInstance, mainRenderTexture, relDt);
+        DrawTextureRec(mainRenderTexture.texture, Rectangle{0, 0, (float)mainRenderTexture.texture.width, (float)-mainRenderTexture.texture.height}, Vector2{0, 0}, WHITE);
     EndDrawing();
     
     return !windowShouldClose;
