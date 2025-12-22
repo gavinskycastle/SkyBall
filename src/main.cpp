@@ -35,7 +35,7 @@ GameSettings gameSettings;
 
 RenderTexture2D mainRenderTexture;
 GameInstanceState mainGameInstance;
-Footballer player = Footballer();
+Player player = Player();
 
 Ball testBall = Ball(screenWidth/2, screenHeight/2);
 

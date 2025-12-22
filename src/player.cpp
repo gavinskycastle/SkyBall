@@ -4,10 +4,22 @@
 
 using namespace std;
 
-    Footballer player;
-void playerMovement() {
-    while (!WindowShouldClose()) {
-        player.DrawRectangle(player.x, player.y, player.length, player.width, RED);
-        player.moveRectangle(player);
+void Player::moveRectangle(float delta) {
+    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
+        y += moveSpeed * delta;
     }
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+        x -= moveSpeed * delta;
+    }
+    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
+        y -= moveSpeed * delta;
+    }
+    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+        x += moveSpeed * delta;
+    }
+}
+
+void Player::playerMovement(float delta) {
+    DrawRectangle(x, y, length, width, RED);
+    moveRectangle(delta);
 }
