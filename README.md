@@ -1,4 +1,4 @@
-# ScoreJam37
+# SkyBall
 
 ![Native Build](https://github.com/gavinskycastle/ScoreJam37/actions/workflows/nativebuild.yml/badge.svg) ![Web Build](https://github.com/gavinskycastle/ScoreJam37/actions/workflows/webbuild.yml/badge.svg)
 
